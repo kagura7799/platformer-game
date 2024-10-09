@@ -1,23 +1,16 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-#include "../include/GameManager.hpp"
+#include "../include/Game.hpp"
 
 int main()
 {
-    Game game();
-    sf::RenderWindow window(sf::VideoMode(1400, 1000), "Ninja Negr");
+    Game game;
 
-    while (window.isOpen())
+    while (game.running())
     {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-            gameLoop();
-        }
+        game.update();
+        game.render();
     }
 
     return 0;

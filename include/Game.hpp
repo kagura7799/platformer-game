@@ -12,17 +12,20 @@ class Game
 private:
     sf::RenderWindow* window;
     sf::Event ev;
-    sf::VideoMode = videoMode;
+    sf::VideoMode videoMode;
 
-    int initVariables();
-    int initWindow();
+    void initVariables();
+    void initWindow();
 
 public:
     Game();
     virtual ~Game();
 
+    const bool running() const;
+
+    void pollEvents(); 
     void render();
     void update();
-}
+};
 
 #endif
