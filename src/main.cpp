@@ -7,6 +7,8 @@ int main()
 {
     Game game;
 
+    game.setBackground("../images/battleground-1.png");
+
     while (game.running())
     {
         game.update();

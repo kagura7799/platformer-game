@@ -1,14 +1,18 @@
 #include <Game.hpp>
+#include <iostream>
 
-void Game::initVariables() 
+void Game::initVariables()
 {
     window = nullptr;
 }
 
 void Game::initWindow() 
 {
-    videoMode.height = 600;
-    videoMode.width = 800;
+    videoMode.height = 800;
+    videoMode.width = 1400;
+
+    // sf::Style::Fullscreen
+
     window = new sf::RenderWindow(videoMode, "Ninja Negr");
 }
 
@@ -41,6 +45,23 @@ void Game::pollEvents()
     }
 }
 
+void Game::setBackground(std::string path) 
+{
+    if (!backgroundTexture.loadFromFile("/home/kagura/cpp/platformer-game/images/battleground-1.png")) {
+        std::cerr << "Could not load image\n";
+        return;
+    }
+
+    backgroundSprite.setTexture(backgroundTexture);
+
+    backgroundSprite.setScale(
+        static_cast<float>(window->getSize().x) / backgroundTexture.getSize().x,
+        static_cast<float>(window->getSize().y) / backgroundTexture.getSize().y
+    );
+
+    isBackgroundSet = true;    
+}
+
 void Game::update() 
 {
     pollEvents();
@@ -49,14 +70,18 @@ void Game::update()
 void Game::render() 
 {
     /*
-        Renders the game objectd
+        Renders the game object
         - clear old frame
         - render game objects
         - display frame in window
     */
-   
-    window->clear(sf::Color(255, 0, 0, 255));
+
+    window->clear();
+
+    if (isBackgroundSet) 
+    {
+        window->draw(backgroundSprite);
+    }
 
     window->display();
 }
-
