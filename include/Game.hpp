@@ -7,6 +7,8 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
 
+#include "Sounds.hpp"
+
 class Game 
 {
 private:
@@ -16,7 +18,6 @@ private:
 
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite; 
-    bool isBackgroundSet = false; 
     
     void initVariables();
     void initWindow();
@@ -25,12 +26,14 @@ public:
     Game();
     virtual ~Game();
 
+    Sounds sound;
+
     const bool running() const;
-    
-    void setBackground(std::string image);
     void pollEvents(); 
     void render();
     void update();
+
+    bool setBackground(std::string path);
 };
 
 #endif

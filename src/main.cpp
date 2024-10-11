@@ -7,7 +7,7 @@ int main()
 {
     Game game;
 
-    game.setBackground("../images/battleground-1.png");
+    game.setBackground("/home/kagura/cpp/platformer-game/images/battleground-1.png");
 
     while (game.running())
     {
