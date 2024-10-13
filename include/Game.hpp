@@ -8,6 +8,7 @@
 #include <SFML/Network.hpp>
 
 #include "Sounds.hpp"
+#include "Player.hpp"
 
 class Game 
 {
@@ -27,6 +28,7 @@ public:
     virtual ~Game();
 
     Sounds sound;
+    Player player;
 
     const bool running() const;
     void pollEvents(); 

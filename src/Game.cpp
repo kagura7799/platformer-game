@@ -1,4 +1,4 @@
-#include <Game.hpp>
+#include "Game.hpp"
 #include <iostream>
 
 void Game::initVariables()
@@ -68,6 +68,7 @@ bool Game::setBackground(std::string path)
 void Game::update() 
 {
     pollEvents();
+    player.movement();
 }
 
 void Game::render() 
@@ -80,7 +81,9 @@ void Game::render()
     */
 
     window->clear();
+
     window->draw(backgroundSprite);
+    player.draw(window);
 
     window->display();
 }
