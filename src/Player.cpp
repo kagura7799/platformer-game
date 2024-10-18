@@ -1,48 +1,54 @@
 #include "Player.hpp"
-#include "Game.hpp"
+#include <iostream>
 
-Player::Player()
+Player::Player()    
 {
-    // hitBox - just a hitbox that will be used to track damage, collisions, etc. 
+    playerTexture.loadFromFile("/home/kagura/cpp/platformer-game/Assets/images/sprites/Idle.png");
 
-    // if (!texture.loadFromFile(path)) {
-    //     std::cerr << "Could not load image" << std::endl;
-    //     return false;
-    // } 
-    
-    // sprite.setTexture(texture);
-    hitBox.setSize(sf::Vector2f(70.f, 120.f));
-    hitBox.setFillColor(sf::Color::Red);
-    hitBox.setPosition(600, 400);
+    int frameWidth = playerTexture.getSize().x / 7;
+    int frameHeight = playerTexture.getSize().y / 1;
+
+    playerAnimation.initTexture(&playerTexture, sf::Vector2u(7, 1), 0.3f);
+    playerShape.setTexture(&playerTexture);
+    playerShape.setSize(sf::Vector2f(frameWidth, frameHeight));
+    playerShape.setPosition(600, 600);
 }
 
 // player can move left and right, and he can jump
 void Player::movement()
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) hitBox.move(-1.f, 0.f);
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) hitBox.move(1.f, 0.f);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D)) 
+    {
+        playerTexture.loadFromFile("/home/kagura/cpp/platformer-game/Assets/images/sprites/Walk.png");
+        mirror = false;
+        playerShape.move(-1.f, 0.f);
+    }
 
-     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && isOnGround) {
-            isJumping = true;
-            isOnGround = false;
-            velocityY = jumpStrength; 
-        }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) 
+    {
+        playerTexture.loadFromFile("/home/kagura/cpp/platformer-game/Assets/images/sprites/Walk.png");
+        mirror = true;
+        playerShape.move(1.f, 0.f);
+    }
 
-        if (isJumping) 
-        {
-            velocityY += gravity; 
-            hitBox.move(0, velocityY);
+    // if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        // shoot();
+    }
+}
 
-            if (hitBox.getPosition().y >= 500.0f) {
-                hitBox.setPosition(hitBox.getPosition().x, 500.0f);
-                isJumping = false;
-                isOnGround = true;
-                velocityY = 0.0f;
-            }
-        }
+void Player::update()
+{
+    float deltaTime = clock.restart().asSeconds();
+    playerTexture.loadFromFile("/home/kagura/cpp/platformer-game/Assets/images/sprites/Idle.png"); // reset default state (idle)
+    
+    movement();
+    playerAnimation.Update(deltaTime, mirror);
+    playerShape.setTextureRect(playerAnimation.uvRect);
 }
 
 void Player::draw(sf::RenderWindow* window)
 {
-    window->draw(hitBox);
+    window->draw(playerShape);
 }
