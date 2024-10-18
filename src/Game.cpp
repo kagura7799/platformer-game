@@ -22,7 +22,7 @@ Game::Game()
     initVariables();
     initWindow();
 
-    setBackground("/home/kagura/cpp/platformer-game/images/battleground-1.png");
+    setBackground("/home/kagura/cpp/platformer-game/Assets/images/City2_pale.png");
 }
 
 Game::~Game()
@@ -50,11 +50,7 @@ void Game::pollEvents()
 
 bool Game::setBackground(std::string path) 
 {
-    if (!backgroundTexture.loadFromFile(path)) {
-        std::cerr << "Could not load image" << std::endl;
-        return false;
-    } 
-    
+    backgroundTexture.loadFromFile(path);
     backgroundSprite.setTexture(backgroundTexture);
 
     backgroundSprite.setScale(
@@ -68,7 +64,7 @@ bool Game::setBackground(std::string path)
 void Game::update() 
 {
     pollEvents();
-    player.movement();
+    player.update();
 }
 
 void Game::render() 
@@ -81,9 +77,7 @@ void Game::render()
     */
 
     window->clear();
-
     window->draw(backgroundSprite);
     player.draw(window);
-
     window->display();
 }
