@@ -3,47 +3,61 @@
 
 Player::Player()    
 {
-    playerTexture.loadFromFile("/home/kagura/cpp/platformer-game/Assets/images/sprites/Idle.png");
+    currentState = PlayerState::Idle;
+    playerTexture.loadFromFile("Assets/images/sprites/Idle.png");
 
-    int frameWidth = playerTexture.getSize().x / 7;
-    int frameHeight = playerTexture.getSize().y / 1;
-
-    playerAnimation.initTexture(&playerTexture, sf::Vector2u(7, 1), 0.3f);
     playerShape.setTexture(&playerTexture);
-    playerShape.setSize(sf::Vector2f(frameWidth, frameHeight));
-    playerShape.setPosition(600, 600);
+    playerShape.setSize(sf::Vector2f(250, 250));
+    playerShape.setPosition(450, 450);
+    setAnimation(7);
 }
 
-// player can move left and right, and he can jump
-void Player::movement()
+void Player::setAnimation(int countFrames)
 {
+    playerAnimation.initTexture(&playerTexture, sf::Vector2u(countFrames, 1), 0.3f);
+}
+
+void Player::changeState(PlayerState newState, const std::string& texturePath, int frameCount)
+{
+    if (currentState != newState)
+    {
+        playerTexture.loadFromFile(texturePath);
+        setAnimation(frameCount);
+        currentState = newState;
+    }
+}
+
+void Player::handleInput()
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        changeState(PlayerState::Shooting, "Assets/images/sprites/Shot_1.png", 4);
+        return;
+    }
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D)) 
     {
-        playerTexture.loadFromFile("/home/kagura/cpp/platformer-game/Assets/images/sprites/Walk.png");
+        changeState(PlayerState::WalkingLeft, "Assets/images/sprites/Walk.png", 7);
         mirror = false;
         playerShape.move(-1.f, 0.f);
     }
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) 
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) 
     {
-        playerTexture.loadFromFile("/home/kagura/cpp/platformer-game/Assets/images/sprites/Walk.png");
+        changeState(PlayerState::WalkingRight, "Assets/images/sprites/Walk.png", 7);
         mirror = true;
         playerShape.move(1.f, 0.f);
     }
-
-    // if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) 
     {
-        // shoot();
+        changeState(PlayerState::Idle, "Assets/images/sprites/Idle.png", 7);
     }
 }
 
 void Player::update()
 {
     float deltaTime = clock.restart().asSeconds();
-    playerTexture.loadFromFile("/home/kagura/cpp/platformer-game/Assets/images/sprites/Idle.png"); // reset default state (idle)
-    
-    movement();
+
+    handleInput();
     playerAnimation.Update(deltaTime, mirror);
     playerShape.setTextureRect(playerAnimation.uvRect);
 }
