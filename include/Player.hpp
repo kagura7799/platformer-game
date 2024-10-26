@@ -2,17 +2,50 @@
 #define PLAYER_HPP
 
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "Animation.hpp"
 #include "Sounds.hpp"
 
-enum class PlayerState {
+struct StateIdle
+{
+    std::string texturePath;
+    int countFrames;
+};
+
+struct StateWalk
+{
+    std::string texturePath;
+    std::string soundPath;
+    int countFrames;
+    bool loopSound;
+};
+
+struct StateShot
+{
+    std::string texturePath;
+    std::string soundPath;
+    int countFrames;
+    bool loopSound;
+};
+
+struct PlayerStateInfo
+{
+    StateIdle idle;
+    StateWalk walk;
+    StateShot shot;
+};
+
+enum class PlayerState 
+{
     Idle,
     WalkingLeft,
     WalkingRight,
     Shooting
 };
 
-class Player {
+
+class Player
+{
 public:
     Player(); 
 
@@ -21,15 +54,13 @@ public:
     void draw(sf::RenderWindow* window);
 
 private:
-    const std::string idleSprite = "Assets/images/sprites/Idle.png";
-    const std::string walkSprite = "Assets/images/sprites/Walk.png";
-    const std::string shotSprite = "Assets/images/sprites/Shot_1.png";
+    PlayerStateInfo stateInfo;
 
     void shot();
     void movement();
     void soundLoader();
     void setAnimation(int countFrames);
-    void changeState(PlayerState newState, const std::string& texturePath, int frameCount);
+    void changeState(PlayerState newState, const std::string texturePath, int frameCount);
 
     Sounds soundManager;
     Animation playerAnimation;
@@ -41,7 +72,7 @@ private:
 
     bool wasSpacePressed;
     bool isSpacePressed = false;
-    bool mirror;
+    bool spriteMirror;
     bool isWalkingSoundPlaying;
 };
 

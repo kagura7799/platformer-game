@@ -1,23 +1,26 @@
 #include "Player.hpp"
-#include <iostream>
 
 Player::Player()    
 {
+    stateInfo.idle = {"Assets/images/sprites/Idle.png", 7};
+    stateInfo.walk = {"Assets/images/sprites/Walk.png", "Assets/sounds/walk.ogg", 7, false};
+    stateInfo.shot = {"Assets/images/sprites/Shot_1.png", "Assets/sounds/shot.ogg", 4, false};
+
     soundLoader();
     
     currentState = PlayerState::Idle;
-    playerTexture.loadFromFile("Assets/images/sprites/Idle.png");
+    playerTexture.loadFromFile(stateInfo.idle.texturePath);
+    setAnimation(stateInfo.idle.countFrames);
 
     playerShape.setTexture(&playerTexture);
     playerShape.setSize(sf::Vector2f(250, 250));
     playerShape.setPosition(450, 450);
-    setAnimation(7);
 }
 
 void Player::soundLoader()
 {
-    soundManager.loadSound("walk", "Assets/sounds/walk.ogg", false);
-    soundManager.loadSound("shot", "Assets/sounds/shot.ogg", false);
+    soundManager.loadSound("walk", stateInfo.walk.soundPath, stateInfo.walk.loopSound);
+    soundManager.loadSound("shot", stateInfo.shot.soundPath, stateInfo.shot.loopSound);
 }
 
 void Player::setAnimation(int countFrames)
@@ -25,7 +28,7 @@ void Player::setAnimation(int countFrames)
     playerAnimation.initTexture(&playerTexture, sf::Vector2u(countFrames, 1), 0.3f);
 }
 
-void Player::changeState(PlayerState newState, const std::string& texturePath, int frameCount)
+void Player::changeState(PlayerState newState, const std::string texturePath, int frameCount)
 {
     if (currentState != newState)
     {
@@ -41,7 +44,7 @@ void Player::shot()
 
     if (isSpacePressed && !wasSpacePressed) 
     {
-        changeState(PlayerState::Shooting, "shoot", 4);
+        changeState(PlayerState::Shooting, stateInfo.shot.texturePath, stateInfo.shot.countFrames);
 
         if (soundManager.isSoundPlaying("walk")) soundManager.stopSound("walk");
         soundManager.playSound("shot");
@@ -56,9 +59,11 @@ void Player::shot()
 
 void Player::movement()
 {
+    // used checking space pressed, to avoid bug with pressed button A or D and button Space
+
     if (!(isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)))
     {
-        changeState(PlayerState::Idle, idleSprite, 7);
+        changeState(PlayerState::Idle, stateInfo.idle.texturePath, stateInfo.idle.countFrames);
         soundManager.stopSound("walk");
         soundManager.stopSound("shot");
         return;
@@ -66,23 +71,23 @@ void Player::movement()
 
     if ((!isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))) 
     {
-        changeState(PlayerState::WalkingLeft, walkSprite, 7);
+        changeState(PlayerState::WalkingLeft, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
         if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
-        mirror = false;
+        spriteMirror = false;
         playerShape.move(-1.f, 0.f);
     }
 
     else if ((!isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A))) 
     {
-        changeState(PlayerState::WalkingRight, walkSprite, 7);
+        changeState(PlayerState::WalkingRight, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
         if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
-        mirror = true;
+        spriteMirror = true;
         playerShape.move(1.f, 0.f);
     }
 
     else
     {
-        if (!wasSpacePressed) changeState(PlayerState::Idle, idleSprite, 7);
+        if (!wasSpacePressed) changeState(PlayerState::Idle, stateInfo.idle.texturePath, stateInfo.idle.countFrames);
         soundManager.stopSound("walk");
     }
 }
@@ -98,7 +103,7 @@ void Player::update()
     float deltaTime = clock.restart().asSeconds();
 
     handleInput();
-    playerAnimation.Update(deltaTime, mirror);
+    playerAnimation.Update(deltaTime, spriteMirror);
     playerShape.setTextureRect(playerAnimation.uvRect);
 }
 
