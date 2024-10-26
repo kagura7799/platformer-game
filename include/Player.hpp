@@ -3,45 +3,46 @@
 
 #include <SFML/Graphics.hpp>
 #include "Animation.hpp"
-#include "Gun.hpp"
+#include "Sounds.hpp"
 
-enum class PlayerState
-{
+enum class PlayerState {
     Idle,
     WalkingLeft,
     WalkingRight,
     Shooting
 };
 
-class Player
-{
+class Player {
+public:
+    Player(); 
+
+    void handleInput();
+    void update();
+    void draw(sf::RenderWindow* window);
+
 private:
+    const std::string idleSprite = "Assets/images/sprites/Idle.png";
+    const std::string walkSprite = "Assets/images/sprites/Walk.png";
+    const std::string shotSprite = "Assets/images/sprites/Shot_1.png";
+
+    void shot();
+    void movement();
+    void soundLoader();
+    void setAnimation(int countFrames);
+    void changeState(PlayerState newState, const std::string& texturePath, int frameCount);
+
+    Sounds soundManager;
+    Animation playerAnimation;
+    PlayerState currentState;
+
+    sf::RectangleShape playerShape;
     sf::Texture playerTexture;
     sf::Clock clock;
 
-    Animation playerAnimation;
-    Gun gun;
-    PlayerState currentState;
-
-    float gravity = 0.1f, jumpStrength = -8.0f, velocityY = 0.0f;
-    bool isJumping = false, isOnGround = true, mirror = true;
-
-    std::string pathToSprite;
-
-    void changeState(PlayerState newState, const std::string& texturePath, int frameCount);
-    void loadTextures();
-    void handleInput();
-    void setAnimation(int countFrames);
-    void playAnimation(float deltaTime);
-
-public:
-    Player();
-
-    int hp = 0, damage = 50, ammo = 15;
-    sf::RectangleShape playerShape;
-        
-    void update();
-    void draw(sf::RenderWindow *window);
+    bool wasSpacePressed;
+    bool isSpacePressed = false;
+    bool mirror;
+    bool isWalkingSoundPlaying;
 };
 
 #endif

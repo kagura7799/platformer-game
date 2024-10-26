@@ -3,6 +3,8 @@
 
 Player::Player()    
 {
+    soundLoader();
+    
     currentState = PlayerState::Idle;
     playerTexture.loadFromFile("Assets/images/sprites/Idle.png");
 
@@ -10,6 +12,12 @@ Player::Player()
     playerShape.setSize(sf::Vector2f(250, 250));
     playerShape.setPosition(450, 450);
     setAnimation(7);
+}
+
+void Player::soundLoader()
+{
+    soundManager.loadSound("walk", "Assets/sounds/walk.ogg", false);
+    soundManager.loadSound("shot", "Assets/sounds/shot.ogg", false);
 }
 
 void Player::setAnimation(int countFrames)
@@ -27,30 +35,62 @@ void Player::changeState(PlayerState newState, const std::string& texturePath, i
     }
 }
 
-void Player::handleInput()
+void Player::shot()
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    isSpacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+
+    if (isSpacePressed && !wasSpacePressed) 
     {
-        changeState(PlayerState::Shooting, "Assets/images/sprites/Shot_1.png", 4);
+        changeState(PlayerState::Shooting, "shoot", 4);
+
+        if (soundManager.isSoundPlaying("walk")) soundManager.stopSound("walk");
+        soundManager.playSound("shot");
+        wasSpacePressed = true;
+    }
+
+    if (!isSpacePressed) 
+    {
+        wasSpacePressed = false;
+    }
+}
+
+void Player::movement()
+{
+    if (!(isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)))
+    {
+        changeState(PlayerState::Idle, idleSprite, 7);
+        soundManager.stopSound("walk");
+        soundManager.stopSound("shot");
         return;
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D)) 
+    if ((!isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))) 
     {
-        changeState(PlayerState::WalkingLeft, "Assets/images/sprites/Walk.png", 7);
+        changeState(PlayerState::WalkingLeft, walkSprite, 7);
+        if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
         mirror = false;
         playerShape.move(-1.f, 0.f);
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) 
+
+    else if ((!isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A))) 
     {
-        changeState(PlayerState::WalkingRight, "Assets/images/sprites/Walk.png", 7);
+        changeState(PlayerState::WalkingRight, walkSprite, 7);
+        if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
         mirror = true;
         playerShape.move(1.f, 0.f);
     }
-    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) 
+
+    else
     {
-        changeState(PlayerState::Idle, "Assets/images/sprites/Idle.png", 7);
+        if (!wasSpacePressed) changeState(PlayerState::Idle, idleSprite, 7);
+        soundManager.stopSound("walk");
     }
+}
+
+void Player::handleInput()
+{
+    shot();
+    movement();
 }
 
 void Player::update()
