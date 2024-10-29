@@ -8,7 +8,7 @@ CXX = g++
 CXXFLAGS = -I$(INC_DIR) -std=c++17
 LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/Game.cpp $(SRC_DIR)/Sounds.cpp
+SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/Game.cpp $(SRC_DIR)/Sounds.cpp $(SRC_DIR)/Player.cpp $(SRC_DIR)/Animation.cpp $(SRC_DIR)/Gun.cpp
 
 $(TARGET): $(SRCS)
 	$(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET) $(LDFLAGS) && ./platformer-game
