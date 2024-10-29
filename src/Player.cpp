@@ -14,7 +14,7 @@ Player::Player()
 
     playerShape.setTexture(&playerTexture);
     playerShape.setSize(sf::Vector2f(250, 250));
-    playerShape.setPosition(450, 450);
+    playerShape.setPosition(450, 450);    
 }
 
 void Player::soundLoader()
@@ -41,9 +41,11 @@ void Player::changeState(PlayerState newState, const std::string texturePath, in
 void Player::shot()
 {
     isSpacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+    sf::Vector2f playerPos = playerShape.getPosition();
 
     if (isSpacePressed && !wasSpacePressed) 
     {
+        gun.shoot(spriteMirror, 2.f, playerPos, sf::Color::Yellow);
         changeState(PlayerState::Shooting, stateInfo.shot.texturePath, stateInfo.shot.countFrames);
 
         if (soundManager.isSoundPlaying("walk")) soundManager.stopSound("walk");
@@ -103,11 +105,13 @@ void Player::update()
     float deltaTime = clock.restart().asSeconds();
 
     handleInput();
+    gun.updateBullet();
     playerAnimation.Update(deltaTime, spriteMirror);
     playerShape.setTextureRect(playerAnimation.uvRect);
 }
 
-void Player::draw(sf::RenderWindow* window)
+void Player::draw(sf::RenderWindow *window)
 {
     window->draw(playerShape);
+    gun.draw(window);
 }

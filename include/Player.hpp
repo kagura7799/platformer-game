@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "Animation.hpp"
+#include "Gun.hpp"
 #include "Sounds.hpp"
 
 struct StateIdle
@@ -43,7 +44,6 @@ enum class PlayerState
     Shooting
 };
 
-
 class Player
 {
 public:
@@ -54,17 +54,17 @@ public:
     void draw(sf::RenderWindow* window);
 
 private:
-    PlayerStateInfo stateInfo;
-
     void shot();
     void movement();
     void soundLoader();
     void setAnimation(int countFrames);
     void changeState(PlayerState newState, const std::string texturePath, int frameCount);
 
-    Sounds soundManager;
-    Animation playerAnimation;
+    Gun gun;
+    PlayerStateInfo stateInfo;
     PlayerState currentState;
+    Animation playerAnimation;
+    Sounds soundManager;
 
     sf::RectangleShape playerShape;
     sf::Texture playerTexture;
