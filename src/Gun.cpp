@@ -19,10 +19,23 @@ void Gun::shoot(bool playerSpriteMirror, float radius, sf::Vector2f positionShoo
 }
 
 void Gun::updateBullet()
-{
-    for (Bullet* bullet : bullets)
+{   
+    for (size_t i = 0; i < bullets.size();)
     {
-        bullet->bulletShape.move(bullet->movementSide, 0.f);
+        Bullet* bullet = bullets[i];
+
+        // check if the bullet goes beyond the screen boundaries
+        if (bullet->bulletShape.getPosition().x > 1400 || bullet->bulletShape.getPosition().x < -1000) 
+        {
+            delete bullet;
+            bullets.erase(bullets.begin() + i);
+        }
+
+        else
+        {
+            bullet->bulletShape.move(bullet->movementSide, 0.f);
+            ++i;
+        }
     }
 }
 
