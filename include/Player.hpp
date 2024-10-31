@@ -55,7 +55,9 @@ public:
 
 private:
     void shot();
+    void reload();
     void movement();
+
     void soundLoader();
     void setAnimation(int countFrames);
     void changeState(PlayerState newState, const std::string texturePath, int frameCount);
@@ -70,6 +72,8 @@ private:
     sf::Texture playerTexture;
     sf::Clock clock;
 
+    bool isReloadingButton;
+    bool wasReloadingButton;
     bool wasSpacePressed;
     bool isSpacePressed = false;
     bool spriteMirror;

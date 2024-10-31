@@ -40,7 +40,7 @@ void Player::changeState(PlayerState newState, const std::string texturePath, in
 
 void Player::shot()
 {
-    isSpacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+    isSpacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && gun.cartridgeClip > 0;
     sf::Vector2f playerPos = playerShape.getPosition();
 
     if (isSpacePressed && !wasSpacePressed) 
@@ -53,17 +53,30 @@ void Player::shot()
         wasSpacePressed = true;
     }
 
-    if (!isSpacePressed) 
+    if (!isSpacePressed) wasSpacePressed = false;
+}
+
+void Player::reload()
+{
+    isReloadingButton = sf::Keyboard::isKeyPressed(sf::Keyboard::R);
+
+    if (isReloadingButton && !wasReloadingButton)
     {
-        wasSpacePressed = false;
+        if (gun.reload()) 
+        {
+            // TODO: play animation and sound reload
+        }
+        wasReloadingButton = true;
     }
+
+    if (!isReloadingButton) wasReloadingButton = false;
 }
 
 void Player::movement()
 {
     // used checking space pressed, to avoid bug with pressed button A or D and button Space
 
-    if (!(isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)))
+    if (!isSpacePressed && sf::Keyboard::isKeyPressed(sf::Keyboard::A) && sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
         changeState(PlayerState::Idle, stateInfo.idle.texturePath, stateInfo.idle.countFrames);
         soundManager.stopSound("walk");
@@ -71,7 +84,7 @@ void Player::movement()
         return;
     }
 
-    if ((!isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))) 
+    if (!isSpacePressed && sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
         changeState(PlayerState::WalkingLeft, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
         if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
@@ -79,7 +92,7 @@ void Player::movement()
         playerShape.move(-1.f, 0.f);
     }
 
-    else if ((!isSpacePressed) && (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A))) 
+    else if (!isSpacePressed && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
         changeState(PlayerState::WalkingRight, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
         if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
@@ -97,6 +110,7 @@ void Player::movement()
 void Player::handleInput()
 {
     shot();
+    reload();
     movement();
 }
 
