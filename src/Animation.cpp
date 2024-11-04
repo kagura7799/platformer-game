@@ -34,7 +34,7 @@ void Animation::Update(float deltaTime, bool faceRight)
     }
 
     uvRect.top = currentImage.y * uvRect.height;
-    uvRect.left = currentImage.x * uvRect.width;
+    if (!faceRight) uvRect.left += uvRect.width;
 
     if (faceRight) {
         uvRect.width = abs(uvRect.width);
@@ -43,4 +43,9 @@ void Animation::Update(float deltaTime, bool faceRight)
         uvRect.width = -abs(uvRect.width); 
         uvRect.left = (currentImage.x + 1) * abs(uvRect.width); 
     }
+}
+
+bool Animation::isAnimationComplete() const
+{
+    return (currentImage.x == imageCount.x - 1 && totalTime < switchTime);
 }

@@ -5,6 +5,7 @@ Player::Player()
     stateInfo.idle = {"Assets/images/sprites/Idle.png", 7};
     stateInfo.walk = {"Assets/images/sprites/Walk.png", "Assets/sounds/walk.ogg", 7, false};
     stateInfo.shot = {"Assets/images/sprites/Shot_1.png", "Assets/sounds/shot.ogg", 4, false};
+    stateInfo.recharge = {"Assets/images/sprites/Recharge.png", "Assets/sounds/recharge.ogg", 13, false};
 
     soundLoader();
     
@@ -15,12 +16,16 @@ Player::Player()
     playerShape.setTexture(&playerTexture);
     playerShape.setSize(sf::Vector2f(250, 250));
     playerShape.setPosition(450, 450);    
+
+    reloadTimer = 0.0f;
 }
 
 void Player::soundLoader()
 {
     soundManager.loadSound("walk", stateInfo.walk.soundPath, stateInfo.walk.loopSound);
     soundManager.loadSound("shot", stateInfo.shot.soundPath, stateInfo.shot.loopSound);
+    soundManager.loadSound("recharge", stateInfo.recharge.soundPath, stateInfo.recharge.loopSound);
+    soundManager.loadSound("no-ammo", "Assets/sounds/no-ammo.ogg", false);
 }
 
 void Player::setAnimation(int countFrames)
@@ -40,86 +45,153 @@ void Player::changeState(PlayerState newState, const std::string texturePath, in
 
 void Player::shot()
 {
-    isSpacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && gun.cartridgeClip > 0;
+    isSpacePressed = KEY_SPACE;
     sf::Vector2f playerPos = playerShape.getPosition();
 
     if (isSpacePressed && !wasSpacePressed) 
     {
-        gun.shoot(spriteMirror, 2.f, playerPos, sf::Color::Yellow);
-        changeState(PlayerState::Shooting, stateInfo.shot.texturePath, stateInfo.shot.countFrames);
+        if (gun.cartridgeClip > 0)
+        {
+            gun.shoot(spriteMirror, 2.f, playerPos, sf::Color::Yellow);
+            changeState(PlayerState::Shooting, stateInfo.shot.texturePath, stateInfo.shot.countFrames);
+            soundManager.playSound("shot");
+        } else {
+            soundManager.playSound("no-ammo");
+        }
+
+        soundManager.stopSound("recharge");
+        reloadingIsEnd = true;
 
         if (soundManager.isSoundPlaying("walk")) soundManager.stopSound("walk");
-        soundManager.playSound("shot");
         wasSpacePressed = true;
-    }
+    }   
 
     if (!isSpacePressed) wasSpacePressed = false;
 }
 
-void Player::reload()
+void Player::startReload() 
 {
-    isReloadingButton = sf::Keyboard::isKeyPressed(sf::Keyboard::R);
+    changeState(PlayerState::Recharging, stateInfo.recharge.texturePath, stateInfo.recharge.countFrames);
+    soundManager.playSound("recharge");
+    reloadingIsEnd = false;
+    reloadTimer = 2.0f;
+}
 
-    if (isReloadingButton && !wasReloadingButton)
+void Player::updateReload(float deltaTime) 
+{
+    if (reloadTimer > 0.0f) {
+        reloadTimer -= deltaTime;
+
+        if (reloadTimer <= 0.0f) {
+            completeReload();
+        }
+    }
+}
+
+void Player::completeReload() 
+{
+    // if player starting to walk or shooting and etc before complete reload - do not give ammo
+    if (currentState == PlayerState::Recharging)
     {
-        if (gun.reload()) 
-        {
-            // TODO: play animation and sound reload
+        int difference = (30 - gun.cartridgeClip);
+        if (gun.ammo >= difference) {
+            gun.ammo -= difference;
+            gun.cartridgeClip += difference;
+        } else {
+            gun.cartridgeClip += gun.ammo;
+            gun.ammo = 0;
+        }
+        reloadingIsEnd = true;
+
+        std::cout << "completeReload" << std::endl;
+        std::cout << "ammo: " << gun.cartridgeClip << std::endl;
+    }
+}
+
+void Player::recharge() 
+{
+    isReloadingButton = KEY_R;
+    if (isReloadingButton && !wasReloadingButton && reloadingIsEnd) {
+        if (gun.cartridgeClip < 30 && gun.ammo > 0) {
+            startReload();
+        } else {
+            std::cout << "reloading is impossible now" << std::endl;
         }
         wasReloadingButton = true;
     }
-
     if (!isReloadingButton) wasReloadingButton = false;
 }
 
 void Player::movement()
 {
-    // used checking space pressed, to avoid bug with pressed button A or D and button Space
-
-    if (!isSpacePressed && sf::Keyboard::isKeyPressed(sf::Keyboard::A) && sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    // stop recharging when player start walk
+    if (KEY_A || KEY_D)
     {
-        changeState(PlayerState::Idle, stateInfo.idle.texturePath, stateInfo.idle.countFrames);
-        soundManager.stopSound("walk");
-        soundManager.stopSound("shot");
-        return;
+        reloadingIsEnd = true;
+        soundManager.stopSound("recharge");
     }
 
-    if (!isSpacePressed && sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    // used checking space and R pressed, to avoid bug
+    if (!isSpacePressed && reloadingIsEnd)
     {
-        changeState(PlayerState::WalkingLeft, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
-        if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
-        spriteMirror = false;
-        playerShape.move(-1.f, 0.f);
-    }
+        if (KEY_A && KEY_D)
+        {
+            changeState(PlayerState::Idle, stateInfo.idle.texturePath, stateInfo.idle.countFrames);
+            soundManager.stopSound("walk");
+            soundManager.stopSound("shot");
+            return;
+        }
+        
+        if (KEY_A && !KEY_D)
+        {
+            changeState(PlayerState::WalkingLeft, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
+            if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
+            spriteMirror = false;
+            playerShape.move(-1.f, 0.f);
+        }
 
-    else if (!isSpacePressed && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-    {
-        changeState(PlayerState::WalkingRight, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
-        if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
-        spriteMirror = true;
-        playerShape.move(1.f, 0.f);
-    }
+        else if (KEY_D && !KEY_A)
+        {
+            changeState(PlayerState::WalkingRight, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
+            if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
+            spriteMirror = true;
+            playerShape.move(1.f, 0.f);
+        }
 
-    else
-    {
-        if (!wasSpacePressed) changeState(PlayerState::Idle, stateInfo.idle.texturePath, stateInfo.idle.countFrames);
-        soundManager.stopSound("walk");
+        else
+        {
+            if (!wasSpacePressed) changeState(PlayerState::Idle, stateInfo.idle.texturePath, stateInfo.idle.countFrames);
+            soundManager.stopSound("walk");
+        }
     }
 }
 
 void Player::handleInput()
 {
-    shot();
-    reload();
+    shot(); 
     movement();
+    recharge();
 }
 
 void Player::update()
 {
+    KEY_A = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
+    KEY_D = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+    KEY_R = sf::Keyboard::isKeyPressed(sf::Keyboard::R);
+    KEY_SPACE = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+
     float deltaTime = clock.restart().asSeconds();
 
     handleInput();
     gun.updateBullet();
+
+    updateReload(deltaTime);
+
+    if (currentState == PlayerState::Recharging && playerAnimation.isAnimationComplete())
+    {
+        reloadingIsEnd = true;
+    }
+
     playerAnimation.Update(deltaTime, spriteMirror);
     playerShape.setTextureRect(playerAnimation.uvRect);
 }

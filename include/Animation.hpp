@@ -6,7 +6,6 @@
 class Animation
 {
 private:
-    sf::Vector2u imageCount;
     sf::Vector2u currentImage;
     
     float totalTime, switchTime;
@@ -14,6 +13,9 @@ private:
 
 public:
     Animation();
+    sf::Vector2u imageCount;
+    
+    bool isAnimationComplete() const;
     void initTexture(sf::Texture* texture, sf::Vector2u imageCount, float switchTime);
     void Update(float deltaTime, bool faceRight);
     

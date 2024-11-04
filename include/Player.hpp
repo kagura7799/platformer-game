@@ -2,6 +2,7 @@
 #define PLAYER_HPP
 
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <iostream>
 #include "Animation.hpp"
 #include "Gun.hpp"
@@ -29,11 +30,20 @@ struct StateShot
     bool loopSound;
 };
 
+struct StateRecharge
+{
+    std::string texturePath;
+    std::string soundPath;
+    int countFrames;
+    bool loopSound;
+};
+
 struct PlayerStateInfo
 {
     StateIdle idle;
     StateWalk walk;
     StateShot shot;
+    StateRecharge recharge;
 };
 
 enum class PlayerState 
@@ -41,7 +51,8 @@ enum class PlayerState
     Idle,
     WalkingLeft,
     WalkingRight,
-    Shooting
+    Shooting,
+    Recharging
 };
 
 class Player
@@ -55,12 +66,15 @@ public:
 
 private:
     void shot();
-    void reload();
     void movement();
-
+    void startReload();
+    void updateReload(float deltaTime);
+    void completeReload();
+    void recharge();
     void soundLoader();
     void setAnimation(int countFrames);
     void changeState(PlayerState newState, const std::string texturePath, int frameCount);
+    bool checkSwitchAnimation(PlayerState currentState);
 
     Gun gun;
     PlayerStateInfo stateInfo;
@@ -68,14 +82,23 @@ private:
     Animation playerAnimation;
     Sounds soundManager;
 
+    sf::Clock clock;
     sf::RectangleShape playerShape;
     sf::Texture playerTexture;
-    sf::Clock clock;
 
+    float reloadTimer;
+
+    bool KEY_A;
+    bool KEY_D;
+    bool KEY_R;
+    bool KEY_SPACE;
+
+    bool isRechargingAnimationComplete;
+    bool reloadingIsEnd;
     bool isReloadingButton;
     bool wasReloadingButton;
     bool wasSpacePressed;
-    bool isSpacePressed = false;
+    bool isSpacePressed;
     bool spriteMirror;
     bool isWalkingSoundPlaying;
 };
