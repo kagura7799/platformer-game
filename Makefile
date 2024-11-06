@@ -1,17 +1,20 @@
 TARGET = platformer-game
 
 SRC_DIR = src
-INC_DIR = include
 LIB_DIR = /usr/lib
 
 CXX = g++
-CXXFLAGS = -I$(INC_DIR) -std=c++17
+CXXFLAGS = -std=c++17
 LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/Game.cpp $(SRC_DIR)/Sounds.cpp $(SRC_DIR)/Player.cpp $(SRC_DIR)/Animation.cpp $(SRC_DIR)/Gun.cpp
+SRCS = $(wildcard $(SRC_DIR)/*.cpp $(SRC_DIR)/*/*.cpp $(SRC_DIR)/*/*/*.cpp)
+OBJS = $(SRCS:.cpp=.o)
 
-$(TARGET): $(SRCS)
-	$(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET) $(LDFLAGS) && ./platformer-game
+$(TARGET): $(OBJS)
+	$(CXX) $(OBJS) -o $(TARGET) $(LDFLAGS) && ./$(TARGET)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(OBJS) $(TARGET)

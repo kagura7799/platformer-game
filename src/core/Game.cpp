@@ -13,16 +13,15 @@ void Game::initWindow()
 
     // sf::Style::Fullscreen - once the game is completely ready add this
 
-    window = new sf::RenderWindow(videoMode, "Ninja Negr");
+    window = new sf::RenderWindow(videoMode, "Zombie in city");
 }
 
 Game::Game()
 {
-    sound.playBackgroundMusic();
     initVariables();
     initWindow();
 
-    setBackground("/home/kagura/cpp/platformer-game/Assets/images/City2_pale.png");
+    setBackground("Assets/Background/City2_pale.png");
 }
 
 Game::~Game()
@@ -65,6 +64,7 @@ void Game::update()
 {
     pollEvents();
     player.update();
+    enemy.update();
 }
 
 void Game::render() 

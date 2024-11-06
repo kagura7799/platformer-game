@@ -2,10 +2,10 @@
 
 Player::Player()    
 {
-    stateInfo.idle = {"Assets/images/sprites/Idle.png", 7};
-    stateInfo.walk = {"Assets/images/sprites/Walk.png", "Assets/sounds/walk.ogg", 7, false};
-    stateInfo.shot = {"Assets/images/sprites/Shot_1.png", "Assets/sounds/shot.ogg", 4, false};
-    stateInfo.recharge = {"Assets/images/sprites/Recharge.png", "Assets/sounds/recharge.ogg", 13, false};
+    stateInfo.idle = {"Assets/Player/sprites/Idle.png", 7};
+    stateInfo.walk = {"Assets/Player/sprites/Walk.png", "Assets/Player/sounds/walk.ogg", 7, false};
+    stateInfo.shot = {"Assets/Player/sprites/Shot_1.png", "Assets/Player/sounds/shot.ogg", 4, false};
+    stateInfo.recharge = {"Assets/Player/sprites/Recharge.png", "Assets/Player/sounds/recharge.ogg", 13, false};
 
     soundLoader();
     
@@ -25,7 +25,7 @@ void Player::soundLoader()
     soundManager.loadSound("walk", stateInfo.walk.soundPath, stateInfo.walk.loopSound);
     soundManager.loadSound("shot", stateInfo.shot.soundPath, stateInfo.shot.loopSound);
     soundManager.loadSound("recharge", stateInfo.recharge.soundPath, stateInfo.recharge.loopSound);
-    soundManager.loadSound("no-ammo", "Assets/sounds/no-ammo.ogg", false);
+    soundManager.loadSound("no-ammo", "Assets/Player/sounds/no-ammo.ogg", false);
 }
 
 void Player::setAnimation(int countFrames)

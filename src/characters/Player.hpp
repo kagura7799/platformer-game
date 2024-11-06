@@ -4,9 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <iostream>
-#include "Animation.hpp"
-#include "Gun.hpp"
-#include "Sounds.hpp"
+#include "../effects/Animation.hpp"
+#include "../weapons/Gun.hpp"
+#include "../effects/Sounds.hpp"
 
 struct StateIdle
 {

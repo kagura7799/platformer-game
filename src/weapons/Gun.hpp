@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "../effects/Animation.hpp"
 
 struct Bullet
 {
@@ -14,6 +15,7 @@ class Gun
 {
 private:
     std::vector<Bullet*> bullets; 
+    Animation playerAnimation;
     Bullet* createBullet(float bulletRadius, const float bulletMovementSide, sf::Vector2f positionShoot, sf::Color bulletColor);
 
 public:
@@ -21,7 +23,6 @@ public:
     int cartridgeClip;
 
     void shoot(bool playerSpriteMirror, float radius, sf::Vector2f positionShoot, sf::Color color);
-    bool reload();
     void updateBullet();
     void draw(sf::RenderWindow *window);
 
