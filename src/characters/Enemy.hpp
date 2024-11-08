@@ -5,6 +5,12 @@
 #include "../effects/Sounds.hpp"
 #include <SFML/Graphics.hpp>
 
+struct EnemyShape
+{
+    sf::RectangleShape* enemyShape;
+    bool spriteMirror;
+};
+
 struct EnemyStateWalk
 {
     std::string texturePath;
@@ -37,7 +43,9 @@ class Enemy
 {
 public:
     Enemy();
-    sf::RectangleShape enemyShape;  
+    ~Enemy();
+
+    std::vector<EnemyShape*> enemies;
 
     void spawn();
     void update();
@@ -45,10 +53,12 @@ public:
 
 private:
     void soundLoader();
+    int getRandomSpawnPosition();
     void setAnimation(int countFrames);
     void movement();
     void changeState(EnemyState newState, const std::string texturePath, int frameCount);
 
+    sf::Clock clock;
     sf::Texture enemyTexture;
 
     EnemyState currentState;
