@@ -64,7 +64,14 @@ void Enemy::spawn()
 
 void Enemy::movement()
 {
-    
+    for (EnemyShape* enemy : enemies)
+    {
+        if (enemy->spriteMirror) {
+            enemy->enemyShape->move(0.3f, 0.f);
+        } else {
+           enemy->enemyShape->move(-0.3f, 0.f);
+        }
+    }
 }
 
 void Enemy::update()
