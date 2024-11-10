@@ -147,7 +147,7 @@ void Player::movement()
             changeState(PlayerState::WalkingLeft, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
             if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
             spriteMirror = false;
-            playerShape.move(-1.f, 0.f);
+            playerShape.move(-0.5f, 0.f);
         }
 
         else if (KEY_D && !KEY_A)
@@ -155,7 +155,7 @@ void Player::movement()
             changeState(PlayerState::WalkingRight, stateInfo.walk.texturePath, stateInfo.walk.countFrames);
             if (!soundManager.isSoundPlaying("walk")) soundManager.playSound("walk");
             spriteMirror = true;
-            playerShape.move(1.f, 0.f);
+            playerShape.move(0.5f, 0.f);
         }
 
         else
