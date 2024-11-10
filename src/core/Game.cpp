@@ -79,5 +79,6 @@ void Game::render()
     window->clear();
     window->draw(backgroundSprite);
     player.draw(window);
+    enemy.draw(window);
     window->display();
 }
