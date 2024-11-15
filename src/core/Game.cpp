@@ -64,7 +64,6 @@ void Game::update()
 {
     pollEvents();
     player.update();
-    enemy.update();
 }
 
 void Game::render() 
@@ -79,6 +78,5 @@ void Game::render()
     window->clear();
     window->draw(backgroundSprite);
     player.draw(window);
-    enemy.draw(window);
     window->display();
 }

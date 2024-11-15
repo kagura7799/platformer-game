@@ -37,7 +37,12 @@ void Enemy::setAnimation(int countFrames)
 
 void Enemy::changeState(EnemyState newState, const std::string texturePath, int frameCount)
 {
-
+    if (currentState != newState)
+    {
+        enemyTexture.loadFromFile(texturePath);
+        setAnimation(frameCount);
+        currentState = newState;
+    }
 }
 
 void Enemy::spawn()
@@ -48,6 +53,8 @@ void Enemy::spawn()
 
     EnemyShape enemy;
     enemy.enemyShape = enemyShape;
+    enemy.hp = 100;
+    enemy.blockMove = false;
 
     // random define side where the enemy will be spawned
     if (getRandomSpawnPosition() == 1) 
@@ -62,14 +69,44 @@ void Enemy::spawn()
     enemies.push_back(new EnemyShape(enemy));
 }
 
+void Enemy::checkHp()
+{
+    for (auto enemyIt = enemies.begin(); enemyIt != enemies.end();)
+    {
+        EnemyShape* enemy = *enemyIt;
+
+        if (enemy->hp <= 0)
+        {
+            enemy->blockMove = true;
+            if (currentState != EnemyState::Dead) {
+                changeState(EnemyState::Dead, "Assets/Enemy/Wild-Zombie/sprites/Dead.png", 5);
+            }
+
+            if (enemyAnimation.isAnimationComplete())
+            {
+                delete enemy;
+                enemyIt = enemies.erase(enemyIt);
+            } else {
+                ++enemyIt;
+            }
+        }
+        else {
+            ++enemyIt;
+        }
+    }
+}
+
 void Enemy::movement()
 {
     for (EnemyShape* enemy : enemies)
     {
-        if (enemy->spriteMirror) {
-            enemy->enemyShape->move(0.3f, 0.f);
-        } else {
-           enemy->enemyShape->move(-0.3f, 0.f);
+        if (!enemy->blockMove)
+        {
+            if (enemy->spriteMirror) {
+                enemy->enemyShape->move(0.3f, 0.f);
+            } else {
+            enemy->enemyShape->move(-0.3f, 0.f);
+            }
         }
     }
 }
@@ -84,6 +121,7 @@ void Enemy::update()
         enemy->enemyShape->setTextureRect(enemyAnimation.uvRect);
     }
 
+    checkHp();
     movement();
 }
 

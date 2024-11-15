@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <iostream>
+#include "../characters/Enemy.hpp"
 #include "../effects/Animation.hpp"
 #include "../weapons/Gun.hpp"
 #include "../effects/Sounds.hpp"
@@ -70,6 +71,7 @@ private:
     void startReload();
     void updateReload(float deltaTime);
     void completeReload();
+    void damageToEnemy();
     void recharge();
     void soundLoader();
     void setAnimation(int countFrames);
@@ -77,6 +79,7 @@ private:
     bool checkSwitchAnimation(PlayerState currentState);
 
     Gun gun;
+    Enemy enemy;
     PlayerStateInfo stateInfo;
     PlayerState currentState;
     Animation playerAnimation;

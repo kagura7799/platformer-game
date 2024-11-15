@@ -14,7 +14,6 @@ struct Bullet
 class Gun
 {
 private:
-    std::vector<Bullet*> bullets; 
     Animation playerAnimation;
     Bullet* createBullet(float bulletRadius, const float bulletMovementSide, sf::Vector2f positionShoot, sf::Color bulletColor);
 
@@ -22,6 +21,8 @@ public:
     int ammo;
     int cartridgeClip;
 
+    std::vector<Bullet*> bullets; 
+    
     void shoot(bool playerSpriteMirror, float radius, sf::Vector2f positionShoot, sf::Color color);
     void updateBullet();
     void draw(sf::RenderWindow *window);

@@ -34,7 +34,7 @@ void Player::setAnimation(int countFrames)
 }
 
 void Player::changeState(PlayerState newState, const std::string texturePath, int frameCount)
-{
+{ 
     if (currentState != newState)
     {
         playerTexture.loadFromFile(texturePath);
@@ -122,6 +122,23 @@ void Player::recharge()
     if (!isReloadingButton) wasReloadingButton = false;
 }
 
+void Player::damageToEnemy() 
+{
+    for (EnemyShape* enemy : enemy.enemies) {
+        for (auto bulletIt = gun.bullets.begin(); bulletIt != gun.bullets.end();) {
+            Bullet* bullet = *bulletIt;
+
+            if (bullet->bulletShape.getGlobalBounds().intersects(enemy->enemyShape->getGlobalBounds())) {
+                enemy->hp -= 20;
+                delete bullet;
+                bulletIt = gun.bullets.erase(bulletIt);
+            } else {
+                ++bulletIt;
+            }
+        }
+    }
+}
+
 void Player::movement()
 {
     // stop recharging when player start walk
@@ -184,7 +201,9 @@ void Player::update()
 
     handleInput();
     gun.updateBullet();
+    enemy.update();
 
+    damageToEnemy();
     updateReload(deltaTime);
 
     if (currentState == PlayerState::Recharging && playerAnimation.isAnimationComplete())
@@ -200,4 +219,5 @@ void Player::draw(sf::RenderWindow *window)
 {
     window->draw(playerShape);
     gun.draw(window);
+    enemy.draw(window);
 }

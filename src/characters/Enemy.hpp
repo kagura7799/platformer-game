@@ -9,6 +9,8 @@ struct EnemyShape
 {
     sf::RectangleShape* enemyShape;
     bool spriteMirror;
+    bool blockMove;
+    int hp;
 };
 
 struct EnemyStateWalk
@@ -27,16 +29,26 @@ struct EnemyStateAttack
     bool loopSound;
 };
 
+struct EnemyStateDead
+{
+    std::string texturePath;
+    std::string soundPath;
+    int countFrames;
+    bool loopSound;
+};
+
 struct EnemyStateInfo
 {
     EnemyStateAttack attack;
     EnemyStateWalk walk;
+    EnemyStateDead dead;
 };
 
 enum class EnemyState
 {
     Walk,
-    Attack
+    Attack,
+    Dead
 };
 
 class Enemy
@@ -52,8 +64,9 @@ public:
     void draw(sf::RenderWindow* window);
 
 private:
-    void soundLoader();
     int getRandomSpawnPosition();
+    void soundLoader();
+    void checkHp();
     void setAnimation(int countFrames);
     void movement();
     void changeState(EnemyState newState, const std::string texturePath, int frameCount);
