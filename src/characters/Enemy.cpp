@@ -5,15 +5,8 @@
 
 Enemy::Enemy()
 {
-    // stateInfo.attack = {}; // TODO: implement structure 
-    // stateInfo.walk = {};
-
-    soundLoader();
     spawn();
-
-    currentState = EnemyState::Walk;
-    enemyTexture.loadFromFile("Assets/Enemy/Wild-Zombie/sprites/Walk.png");
-    setAnimation(10);
+    spawn();
 }
 
 int Enemy::getRandomSpawnPosition()
@@ -25,74 +18,68 @@ int Enemy::getRandomSpawnPosition()
     return dist(gen);
 }
 
-void Enemy::soundLoader()
+void Enemy::setAnimation(EnemyShape* enemy, int countFrames)
 {
-    
+    enemy->enemyAnimation.initTexture(&enemy->enemyTexture, sf::Vector2u(countFrames, 1), 0.3f);
 }
 
-void Enemy::setAnimation(int countFrames)
+void Enemy::changeState(EnemyShape* enemy, EnemyState newState, const std::string texturePath, int frameCount)
 {
-    enemyAnimation.initTexture(&enemyTexture, sf::Vector2u(countFrames, 1), 0.3f);
-}
-
-void Enemy::changeState(EnemyState newState, const std::string texturePath, int frameCount)
-{
-    if (currentState != newState)
+    if (enemy->currentState != newState)
     {
-        enemyTexture.loadFromFile(texturePath);
-        setAnimation(frameCount);
-        currentState = newState;
+        enemy->enemyTexture.loadFromFile(texturePath);
+        setAnimation(enemy, frameCount);
+        enemy->currentState = newState;
     }
 }
 
 void Enemy::spawn()
 {
     sf::RectangleShape* enemyShape = new sf::RectangleShape;
-    enemyShape->setTexture(&enemyTexture);
-    enemyShape->setSize(sf::Vector2f(230, 230));
+    EnemyShape* enemy = new EnemyShape;
 
-    EnemyShape enemy;
-    enemy.enemyShape = enemyShape;
-    enemy.hp = 100;
-    enemy.blockMove = false;
+    enemy->enemyShape = enemyShape;
+    enemy->currentState = EnemyState::Walk;
+    enemy->hp = 100;
+    enemy->blockMove = false;
+    enemy->isAlive = true;
+
+    enemy->enemyTexture.loadFromFile("Assets/Enemy/Wild-Zombie/sprites/Walk.png");
+    setAnimation(enemy, 10);
+    enemyShape->setTexture(&enemy->enemyTexture);
+    enemyShape->setSize(sf::Vector2f(230, 230));
 
     // random define side where the enemy will be spawned
     if (getRandomSpawnPosition() == 1) 
     {
-        enemy.enemyShape->setPosition(1, 468);
-        enemy.spriteMirror = true;
+        enemy->enemyShape->setPosition(1, 468);
+        enemy->spriteMirror = true;
     } else {
-        enemy.enemyShape->setPosition(1300, 468);
-        enemy.spriteMirror = false;
+        enemy->enemyShape->setPosition(1300, 468);
+        enemy->spriteMirror = false;
     }
 
-    enemies.push_back(new EnemyShape(enemy));
+    enemies.push_back(enemy);
 }
 
-void Enemy::checkHp()
+void Enemy::checkHp(EnemyShape* enemy)
 {
-    for (auto enemyIt = enemies.begin(); enemyIt != enemies.end();)
-    {
-        EnemyShape* enemy = *enemyIt;
+    if (enemy->hp <= 0 && enemy->isAlive)
+    {   
+        enemy->isAlive = false;
+        enemy->blockMove = true;
 
-        if (enemy->hp <= 0)
+        if (enemy->currentState != EnemyState::Dead) 
+            changeState(enemy, EnemyState::Dead, "Assets/Enemy/Wild-Zombie/sprites/Dead.png", 5);
+
+        if (enemy->enemyAnimation.isAnimationComplete())
         {
-            enemy->blockMove = true;
-            if (currentState != EnemyState::Dead) {
-                changeState(EnemyState::Dead, "Assets/Enemy/Wild-Zombie/sprites/Dead.png", 5);
+            auto it = std::find(enemies.begin(), enemies.end(), enemy);
+            if (it != enemies.end()) {
+                delete enemy; 
+                enemies.erase(it); 
             }
-
-            if (enemyAnimation.isAnimationComplete())
-            {
-                delete enemy;
-                enemyIt = enemies.erase(enemyIt);
-            } else {
-                ++enemyIt;
-            }
-        }
-        else {
-            ++enemyIt;
-        }
+        } 
     }
 }
 
@@ -117,11 +104,25 @@ void Enemy::update()
 
     for (EnemyShape* enemy : enemies)
     {
-        enemyAnimation.Update(deltaTime, enemy->spriteMirror);
-        enemy->enemyShape->setTextureRect(enemyAnimation.uvRect);
+        enemy->enemyAnimation.Update(deltaTime, enemy->spriteMirror);
+        enemy->enemyShape->setTextureRect(enemy->enemyAnimation.uvRect);
     }
 
-    checkHp();
+    for (auto it = enemies.begin(); it != enemies.end(); )
+    {
+        EnemyShape* enemy = *it;
+
+        if (enemy->currentState == EnemyState::Dead && enemy->enemyAnimation.isAnimationComplete())
+        {
+            delete enemy;
+            it = enemies.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
     movement();
 }
 

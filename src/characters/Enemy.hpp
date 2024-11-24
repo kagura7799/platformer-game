@@ -5,50 +5,24 @@
 #include "../effects/Sounds.hpp"
 #include <SFML/Graphics.hpp>
 
-struct EnemyShape
-{
-    sf::RectangleShape* enemyShape;
-    bool spriteMirror;
-    bool blockMove;
-    int hp;
-};
-
-struct EnemyStateWalk
-{
-    std::string texturePath;
-    std::string soundPath;
-    int countFrames;
-    bool loopSound;
-};
-
-struct EnemyStateAttack
-{
-    std::string texturePath;
-    std::string soundPath;
-    int countFrames;
-    bool loopSound;
-};
-
-struct EnemyStateDead
-{
-    std::string texturePath;
-    std::string soundPath;
-    int countFrames;
-    bool loopSound;
-};
-
-struct EnemyStateInfo
-{
-    EnemyStateAttack attack;
-    EnemyStateWalk walk;
-    EnemyStateDead dead;
-};
-
 enum class EnemyState
 {
     Walk,
     Attack,
     Dead
+};
+
+struct EnemyShape
+{
+    sf::RectangleShape* enemyShape;
+    sf::Texture enemyTexture;
+    EnemyState currentState;
+    Animation enemyAnimation;
+
+    bool spriteMirror;
+    bool blockMove;
+    bool isAlive;
+    int hp;
 };
 
 class Enemy
@@ -62,21 +36,15 @@ public:
     void spawn();
     void update();
     void draw(sf::RenderWindow* window);
+    void checkHp(EnemyShape* enemy);
 
 private:
     int getRandomSpawnPosition();
-    void soundLoader();
-    void checkHp();
-    void setAnimation(int countFrames);
+    void setAnimation(EnemyShape* enemy, int countFrames);
     void movement();
-    void changeState(EnemyState newState, const std::string texturePath, int frameCount);
+    void changeState(EnemyShape* enemyShape, EnemyState newState, const std::string texturePath, int frameCount);
 
     sf::Clock clock;
-    sf::Texture enemyTexture;
-
-    EnemyState currentState;
-    EnemyStateInfo stateInfo;
-    Animation enemyAnimation;
     Sounds soundManager;
 };
 

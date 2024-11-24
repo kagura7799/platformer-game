@@ -102,9 +102,6 @@ void Player::completeReload()
             gun.ammo = 0;
         }
         reloadingIsEnd = true;
-
-        std::cout << "completeReload" << std::endl;
-        std::cout << "ammo: " << gun.cartridgeClip << std::endl;
     }
 }
 
@@ -124,12 +121,13 @@ void Player::recharge()
 
 void Player::damageToEnemy() 
 {
-    for (EnemyShape* enemy : enemy.enemies) {
+    for (EnemyShape* enemyShape : enemy.enemies) {
         for (auto bulletIt = gun.bullets.begin(); bulletIt != gun.bullets.end();) {
             Bullet* bullet = *bulletIt;
 
-            if (bullet->bulletShape.getGlobalBounds().intersects(enemy->enemyShape->getGlobalBounds())) {
-                enemy->hp -= 20;
+            if (bullet->bulletShape.getGlobalBounds().intersects(enemyShape->enemyShape->getGlobalBounds())) {
+                enemy.checkHp(enemyShape);
+                enemyShape->hp -= 20;
                 delete bullet;
                 bulletIt = gun.bullets.erase(bulletIt);
             } else {
